@@ -58,6 +58,8 @@ INTERNAL_IPS = [
 ]
 
 ROOT_URLCONF = 'learning.urls'
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
 
 TEMPLATES = [
     {

@@ -1,3 +1,4 @@
+from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.urls import reverse
 
@@ -16,7 +17,11 @@ class Women(models.Model):
     content = models.TextField(blank=True, verbose_name="Текст статьи")
     time_create = models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
     time_update = models.DateTimeField(auto_now=True, verbose_name="Время изменения")
-    slug = models.SlugField(max_length=255, db_index=True, unique=True)
+    slug = models.SlugField(max_length=255, db_index=True, unique=True,
+                            validators=[
+                                MinLengthValidator(5),
+                                MaxLengthValidator(100),
+                            ])
     is_published = models.BooleanField(choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)),
                                        default=Status.DRAFT,
                                        verbose_name="Статус")
@@ -24,6 +29,8 @@ class Women(models.Model):
     tags = models.ManyToManyField('TagPost', blank=True, related_name='tags', verbose_name="Тэги")
     husband = models.OneToOneField('Husband', on_delete=models.SET_NULL, null=True,
                                    blank=True, related_name='woman', verbose_name="Муж")
+    photo = models.ImageField(upload_to="photos/%Y/%m/%d/", default=None,
+                              blank=True, null=True, verbose_name="Фото")
 
     objects = models.Manager()
     published = PublishedModel()
@@ -76,3 +83,7 @@ class Husband(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class UploadFiles(models.Model):
+    file = models.FileField(upload_to='uploads_model')
