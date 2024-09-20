@@ -7,7 +7,7 @@ menu = [
 
 
 class DataMixin:
-    paginate_by = 2
+    paginate_by = 3
     title_page = None
     extra_context = {}
 

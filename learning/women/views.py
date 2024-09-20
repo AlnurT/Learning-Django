@@ -39,7 +39,7 @@ class AddPage(DataMixin, CreateView):
 
 class UpdatePage(DataMixin, UpdateView):
     model = Women
-    fields = ['title', 'content', 'is_published', 'cat']
+    fields = ['title', 'content', 'photo', 'is_published', 'cat']
     template_name = 'women/addpage.html'
     success_url = reverse_lazy('home')
     title_page = "Редактирование статьи"
