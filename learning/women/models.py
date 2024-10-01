@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.urls import reverse
@@ -33,6 +34,8 @@ class Women(models.Model):
                                    blank=True, related_name='woman',
                                    verbose_name="Муж")
     tags = models.ManyToManyField('TagPost', blank=True, related_name='tags', verbose_name="Тэги")
+    author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL,
+                               related_name='posts', null=True, default=None, blank=True)
 
     objects = models.Manager()
     published = PublishedModel()

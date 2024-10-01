@@ -1,18 +1,15 @@
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, \
+    PermissionRequiredMixin
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseNotFound
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 
+from women.forms import AddPostForm
 from women.models import Women, TagPost
 from women.utils import DataMixin
-
-menu = [
-    {'title': "О сайте", 'url_name': 'about'},
-    {'title': "Добавить статью", 'url_name': 'add_page'},
-    {'title': "Обратная связь", 'url_name': 'contact'},
-    {'title': "Войти", 'url_name': 'login'}
-]
 
 
 class WomenHome(DataMixin, ListView):
@@ -29,20 +26,26 @@ class WomenHome(DataMixin, ListView):
         )
 
 
-class AddPage(DataMixin, CreateView):
-    model = Women
-    fields = '__all__'
+class AddPage(PermissionRequiredMixin, LoginRequiredMixin, DataMixin, CreateView):
+    form_class = AddPostForm
     template_name = 'women/addpage.html'
     success_url = reverse_lazy('home')
     title_page = "Добавление статьи"
+    permission_required = 'women.add_women'
+
+    def form_valid(self, form):
+        w = form.save(commit=False)
+        w.author = self.request.user
+        return super().form_valid(form)
 
 
-class UpdatePage(DataMixin, UpdateView):
+class UpdatePage(PermissionRequiredMixin, DataMixin, UpdateView):
     model = Women
     fields = ['title', 'content', 'photo', 'is_published', 'cat']
     template_name = 'women/addpage.html'
     success_url = reverse_lazy('home')
     title_page = "Редактирование статьи"
+    permission_required = 'women.change_women'
 
 
 class ShowPost(DataMixin, DetailView):
@@ -91,6 +94,7 @@ class TagPostList(DataMixin, ListView):
         return Women.published.filter(tags__slug=self.kwargs['tag_slug']).select_related('cat')
 
 
+@login_required
 def about(request):
     contact_list = Women.published.all()
     paginator = Paginator(contact_list, 3)
@@ -102,12 +106,9 @@ def about(request):
                   {'title': "О сайте", 'page_obj': page_obj})
 
 
+@permission_required(perm='women.view_women', raise_exception=True)
 def contact(request):
     return HttpResponse("Обратная связь")
-
-
-def login(request):
-    return HttpResponse("Авторизация")
 
 
 def page_not_found(request, exception):
