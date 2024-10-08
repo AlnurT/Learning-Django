@@ -5,6 +5,8 @@ from women.models import Category, Husband, Women
 
 
 class AddPostForm(forms.ModelForm):
+    """Форма для создания статьи"""
+
     cat = forms.ModelChoiceField(
         queryset=Category.objects.all(),
         label="Категория",
@@ -17,6 +19,8 @@ class AddPostForm(forms.ModelForm):
     )
 
     class Meta:
+        """Дополнительные параметры модели"""
+
         model = Women
         fields = ['title', 'slug', 'content', 'photo', 'is_published',
                   'cat', 'husband', 'tags']
@@ -27,12 +31,10 @@ class AddPostForm(forms.ModelForm):
         }
 
     def clean_title(self):
+        """Проверка на превышение длины заголовка статьи"""
+
         title = self.cleaned_data['title']
         if len(title) > 50:
             raise ValidationError("Длина превышает 50 символов")
 
         return title
-
-
-class UploadFileForm(forms.Form):
-    file = forms.FileField(label="Файл")
