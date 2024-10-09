@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  dango_app:
+    build: .
+    container_name: dango_app
+    ports:
+      - 8084:8000
